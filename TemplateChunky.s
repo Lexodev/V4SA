@@ -42,12 +42,10 @@ SCREEN_MODE         = VRES_640x480+PIXF_R5G6B5
 Start:
   jsr     CheckV4Card                   ; Are we on a V4 card
   move.l  d0,LastError
-  tst.l   LastError
   bne     Exit                          ; No let's get out
 
   jsr     SaveSystem                    ; Save system data
   move.l  d0,LastError
-  tst.l   LastError
   bne     Restore                       ; Restore on error
 
   lea     CUSTOM,a6
@@ -81,7 +79,11 @@ Start:
 ;*******************************************************************************
 
 MainLoop:
-  jsr     VblWait                       ; Wait for the VBL
+
+  move.w  #0,VblFlag
+.VblWait:
+  tst.w   VblFlag
+  beq.s   .VblWait
 
   bsr     UpdateProgram
 
@@ -113,13 +115,7 @@ InitProgram:
 ; Let's fill the screen buffers with some colors
 .FillScreenBuffers:
   move.w  #$10,d0                       ; Start with a simple color value
-  move.l  PhysicalScreen,a0             ; Our first buffer screen
-  bsr.s   .FillIt
-  move.w  #$100,d0                      ; Start with a simple color value
-  move.l  LogicalScreen,a0              ; Our second buffer screen
-  bsr.s   .FillIt
-  move.w  #$1000,d0                     ; Start with a simple color value
-  move.l  WaitScreen,a0                 ; Our third screen
+  move.l  PhysicalScreen,a0             ; Our buffer screen
   
 .FillIt:
   move.w  #SCREEN_HEIGHT-1,d7           ; 480 lines to do
@@ -131,8 +127,13 @@ InitProgram:
   dbf     d6,.NextPixel
   dbf     d7,.NextLine
 
-; Init the pause counter for a pause of 3 seconds
-  move.w  #3*50,PauseCounter
+; Init the pause counter for a pause of 5 seconds
+  move.w  #5*50,PauseCounter
+
+.SetupScreen:
+  move.w  #0,CUSTOM+BPLHMOD             ; Screen modulo
+  move.l  PhysicalScreen,CUSTOM+BPLHPT  ; Set screen address
+  move.w  #SCREEN_MODE,CUSTOM+GFXMODE   ; Set screen mode
 
   rts
 
@@ -207,6 +208,13 @@ CopperList:
   CNOOP
 CLEnd:
   CEND
+
+;*******************************************************************************
+  SECTION SCREEN,BSS
+;*******************************************************************************
+
+ScreenBuffer:
+  ds.b    (SCREEN_WIDTH*SCREEN_HEIGHT*(SCREEN_DEPTH/8))+32
 
 ;*******************************************************************************
 ; Vampire Toolbox functions

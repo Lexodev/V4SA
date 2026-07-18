@@ -5,7 +5,7 @@
 ;
 ; Save and restore system state
 ;
-; Version 2.0 August 2023
+; Version 2.1 July 2026
 ; Fabrice "Lexo" Labrador <fabrice.labrador@gmail.com>
 ;*******************************************************************************
 
@@ -111,10 +111,10 @@ SaveSystem:
 
 .ResetView:
   move.l  GFX_ACTIVEVIEW(a6),SaveView   ; Save the current view
-;  suba.l  a1,a1
-;  jsr     _LoadView(a6)                 ; Load an empty view
-;  jsr     _WaitTOF(a6)
-;  jsr     _WaitTOF(a6)                  ; Two wait for interlaced screens
+  suba.l  a1,a1
+  jsr     _LoadView(a6)                 ; Load an empty view
+  jsr     _WaitTOF(a6)
+  jsr     _WaitTOF(a6)                  ; Two wait for interlaced screens
 
 ; We are on a 68080, let's get the VBR
 .GetVectorBase:
@@ -224,6 +224,7 @@ DOSLib:
 
   EVEN
 
+; Vector base register and library base
 VbrBase:
   dc.l    0
 GfxBase:
@@ -231,6 +232,7 @@ GfxBase:
 DOSBase:
   dc.l    0
 
+; System data save
 SaveIntena:
   dc.w    0,0
 SaveDmacon:

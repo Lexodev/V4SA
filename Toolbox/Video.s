@@ -16,6 +16,7 @@
 ;*******************************************************************************
 ; Hide the mouse sprite
 ;*******************************************************************************
+
 HideMouse:
   move.w  #0,CUSTOM+SPRHSTRT            ; Sprite start
   move.w  #0,CUSTOM+SPRHSTOP            ; Sprite stop
@@ -25,6 +26,7 @@ HideMouse:
 ;*******************************************************************************
 ; Open the main screen
 ;*******************************************************************************
+
 OpenChunkyScreen:
   move.l  d0,-(sp)
   move.l  #ScreenBuffer,d0              ; Screen buffer address
@@ -45,6 +47,7 @@ OpenChunkyScreen:
 ;*******************************************************************************
 ; Wait for the VBL
 ;*******************************************************************************
+
 VblWait:
   move.w  #0,VblFlag
 .VblWait:
@@ -55,6 +58,7 @@ VblWait:
 ;*******************************************************************************
 ; Switch the screens
 ;*******************************************************************************
+
 SwitchChunkyScreen:
   movem.l d0-d2/a0,-(sp)
   lea     PhysicalScreen,a0
@@ -73,6 +77,7 @@ SwitchChunkyScreen:
 ;         a0.l = colors buffer address (32 bits format)
 ;         a1.l = color register
 ;*******************************************************************************
+
 LoadSAGAColor:
   movem.l d0-d2/a0,-(sp)
   andi.l  #$ff,d1                       ; Clean color index
@@ -94,6 +99,7 @@ LoadSAGAColor:
 ;         d1.w = index of first color
 ;         a0.l = colors buffer address (32 bits format)
 ;*******************************************************************************
+
 LoadPlanarColor:
   move.l  a1,-(sp)
   lea     CUSTOM+PLANARCOL,a1           ; Planar color register
@@ -107,6 +113,7 @@ LoadPlanarColor:
 ;         d1.w = index of first color
 ;         a0.l = colors buffer address (32 bits format)
 ;*******************************************************************************
+
 LoadSpriteColor:
   move.l  a1,-(sp)
   lea     CUSTOM+SPRITECOL,a1           ; Sprite color register
@@ -120,6 +127,7 @@ LoadSpriteColor:
 ;         d1.w = index of first color
 ;         a0.l = colors buffer address (32 bits format)
 ;*******************************************************************************
+
 LoadChunkyColor:
   move.l  a1,-(sp)
   lea     CUSTOM+CHUNKYCOL,a1           ; Chunky color register
@@ -133,6 +141,7 @@ LoadChunkyColor:
 ;         d1.w = index of first color
 ;         a0.l = colors buffer address (32 bits format)
 ;*******************************************************************************
+
 LoadPIPColor:
   move.l  a1,-(sp)
   lea     CUSTOM+PIPCOL,a1            ; Chunky color register

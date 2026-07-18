@@ -5,7 +5,7 @@
 ;
 ; Constants definition
 ;
-; Version 2.0 August 2024
+; Version 2.1 July 2026
 ; Fabrice "Lexo" Labrador <fabrice.labrador@gmail.com>
 ;*******************************************************************************
 
