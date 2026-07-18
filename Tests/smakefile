@@ -1,0 +1,15 @@
+# Assemble tous les programmes
+
+All: Debugger TestBone TestFPU
+  @echo "** Build complete **"
+  
+Debugger: Debugger.s
+  vasm -Fhunkexe -m68080 -o Debugger -devpac Debugger.s
+
+TestFPU: TestFPU.s
+  vasm -Fhunkexe -m68080 -o TestFPU -devpac TestFPU.s
+
+Clean:
+  @delete Debugger
+  @delete TestBone
+  @delete TestFPU
