@@ -33,6 +33,7 @@ INT_SET2            = INT_STOP
 SCREEN_WIDTH        = 640
 SCREEN_HEIGHT       = 480
 SCREEN_DEPTH        = 16
+SCREEN_MODULO       = 0
 SCREEN_MODE         = VRES_640x480+PIXF_R5G6B5
 
 ;*******************************************************************************
@@ -77,15 +78,17 @@ Start:
   move.w  #FALSE,ExitFlag
 
 ;*******************************************************************************
+; This is the program main loop
+;*******************************************************************************
 
 MainLoop:
 
-  move.w  #0,VblFlag
-.VblWait:
-  tst.w   VblFlag
-  beq.s   .VblWait
-
+  jsr     WaitVbl
+  
   bsr     UpdateProgram
+  bsr     DrawProgram
+
+  jsr     SwitchChunkyScreen
 
   tst.w   ExitFlag
   beq.s   MainLoop
@@ -107,15 +110,16 @@ Exit:
 ;*******************************************************************************
 
 InitProgram:
-  move.l  #ScreenBuffer,d0              ; Screen buffer address
-  addi.l  #31,d0
-  andi.l  #~31,d0                       ; Now screen address is 32 bytes aligned
-  move.l  d0,PhysicalScreen             ; Save it
+  jsr     OpenChunkyScreen              ; Open our screen
 
 ; Let's fill the screen buffers with some colors
 .FillScreenBuffers:
   move.w  #$10,d0                       ; Start with a simple color value
-  move.l  PhysicalScreen,a0             ; Our buffer screen
+  move.l  PhysicalScreen,a0             ; Our first buffer screen
+  move.w  #$100,d1                      ; Start with a simple color value
+  move.l  LogicalScreen,a1              ; Our second buffer screen
+  move.w  #$1000,d2                     ; Start with a simple color value
+  move.l  WaitScreen,a2                 ; Our third buffer screen
   
 .FillIt:
   move.w  #SCREEN_HEIGHT-1,d7           ; 480 lines to do
@@ -124,16 +128,15 @@ InitProgram:
 .NextPixel:
   move.w  d0,(a0)+                      ; Write our pixel value
   addq.l  #1,d0                         ; Change the color value
+  move.w  d1,(a1)+                      ; Write our pixel value
+  addq.l  #1,d1                         ; Change the color value
+  move.w  d2,(a2)+                      ; Write our pixel value
+  addq.l  #1,d2                         ; Change the color value
   dbf     d6,.NextPixel
   dbf     d7,.NextLine
 
-; Init the pause counter for a pause of 5 seconds
-  move.w  #5*50,PauseCounter
-
-.SetupScreen:
-  move.w  #0,CUSTOM+BPLHMOD             ; Screen modulo
-  move.l  PhysicalScreen,CUSTOM+BPLHPT  ; Set screen address
-  move.w  #SCREEN_MODE,CUSTOM+GFXMODE   ; Set screen mode
+; Init the pause counter for a pause of 10 seconds
+  move.w  #10*50,PauseCounter
 
   rts
 
@@ -167,12 +170,22 @@ UpdateProgram:
   rts
 
 ;*******************************************************************************
+; Draw the program
+;*******************************************************************************
+
+DrawProgram:
+
+
+  rts
+  
+;*******************************************************************************
 ; VBL
 ;*******************************************************************************
 
 VampireVbl:
   movem.l d0-a6,-(sp)
-  move.w  #-1,VblFlag                   ; Set end of VBL
+; Add your own VBL process here
+  move.w  #TRUE,VblFlag                 ; Set end of VBL
   move.w  #$20,CUSTOM+INTREQ            ; Release interrupt
   movem.l (sp)+,d0-a6
   rte
@@ -189,14 +202,6 @@ LastError:
 ExitFlag:
   dc.w    0
 
-; VBL flag
-VblFlag:
-  dc.w    0
-
-; Physical screen address
-PhysicalScreen:
-  dc.l    0
-
 ; Counter
 PauseCounter:
   dc.w    0
@@ -210,16 +215,10 @@ CLEnd:
   CEND
 
 ;*******************************************************************************
-  SECTION SCREEN,BSS
-;*******************************************************************************
-
-ScreenBuffer:
-  ds.b    (SCREEN_WIDTH*SCREEN_HEIGHT*(SCREEN_DEPTH/8))+32
-
-;*******************************************************************************
 ; Vampire Toolbox functions
 ;*******************************************************************************
 
   INCLUDE "Toolbox/System.s"
+  INCLUDE "Toolbox/Video.s"
 
   END

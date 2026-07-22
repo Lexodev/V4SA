@@ -24,7 +24,7 @@ HideMouse:
   rts
 
 ;*******************************************************************************
-; Open the main screen
+; Open the main screen with triple buffer
 ;*******************************************************************************
 
 OpenChunkyScreen:
@@ -38,7 +38,7 @@ OpenChunkyScreen:
   addi.l  #SCREEN_WIDTH*SCREEN_HEIGHT*(SCREEN_DEPTH/8),d0   ; Last buffer
   move.l  d0,WaitScreen                 ; Save it
 .SetupScreen:
-  move.w  #0,CUSTOM+BPLHMOD             ; Screen modulo
+  move.w  #SCREEN_MODULO,CUSTOM+BPLHMOD ; Screen modulo
   move.l  PhysicalScreen,CUSTOM+BPLHPT  ; Set screen address
   move.w  #SCREEN_MODE,CUSTOM+GFXMODE   ; Set screen mode
   move.l  (sp)+,d0
@@ -48,11 +48,11 @@ OpenChunkyScreen:
 ; Wait for the VBL
 ;*******************************************************************************
 
-VblWait:
-  move.w  #0,VblFlag
-.VblWait:
+WaitVbl:
+  move.w  #FALSE,VblFlag
+.Wait:
   tst.w   VblFlag
-  beq.s   .VblWait
+  beq.s   .Wait
   rts
 
 ;*******************************************************************************
@@ -158,6 +158,10 @@ LoadPIPColor:
 ; Empty sprite
 NullSprite:
   dc.l    0,0,0,0,0,0,0,0
+
+; VBL flag
+VblFlag:
+  dc.w    0
 
 ; Screen addresses
 PhysicalScreen:
