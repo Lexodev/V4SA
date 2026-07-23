@@ -7,8 +7,6 @@
 ; Fabrice "Lexo" Labrador <fabrice.labrador@gmail.com>
 ;*******************************************************************************
 
-  INCDIR  "Work:Sources/Projects/V4SA"
-
 ; Debug mode
 MODE_DEBUG          = 1                 ; 0 inactive, 1 active
 
@@ -34,6 +32,8 @@ SCREEN_WIDTH        = 960
 SCREEN_HEIGHT       = 540
 SCREEN_DEPTH        = 24
 SCREEN_MODULO       = 0
+SCREEN_BPP          = SCREEN_DEPTH/8
+SCREEN_BPL          = SCREEN_BPP*SCREEN_WIDTH
 SCREEN_MODE         = VRES_960x540+PIXF_R8G8B8
 
 ;*******************************************************************************
@@ -131,11 +131,11 @@ CopyBackground:
   lea     Background,a1
   move.w  #SCREEN_HEIGHT-1,d7
 .NextLine:
-  move.w  #SCREEN_WIDTH-1,d6
-.NextPixel:
-  move.w  (a1)+,(a0)+
-  move.b  (a1)+,(a0)+
-  dbf     d6,.NextPixel
+  move.w  #(SCREEN_WIDTH*SCREEN_BPP/8)-1,d6
+.NextBlock:
+  move.l  (a1)+,(a0)+
+  move.l  (a1)+,(a0)+
+  dbf     d6,.NextBlock
   dbf     d7,.NextLine
   movem.l (sp)+,d6-d7/a0-a1
   rts
@@ -191,21 +191,6 @@ VampireVbl:
   rte
 
 ;*******************************************************************************
-  SECTION COPPER,DATA_C
-;*******************************************************************************
-CopperList:
-  CNOOP
-CLEnd:
-  CEND
-
-;*******************************************************************************
-; Vampire Toolbox functions
-;*******************************************************************************
-
-  INCLUDE "Toolbox/System.s"
-  INCLUDE "Toolbox/Video.s"
-
-;*******************************************************************************
   SECTION  GENERAL,DATA
 ;*******************************************************************************
 
@@ -224,5 +209,20 @@ PauseCounter:
 ; Background picture
 Background:
   INCBIN  "BoingBall/assets/background.raw"
+
+;*******************************************************************************
+  SECTION COPPER,DATA_C
+;*******************************************************************************
+CopperList:
+  CNOOP
+CLEnd:
+  CEND
+
+;*******************************************************************************
+; Vampire Toolbox functions
+;*******************************************************************************
+
+  INCLUDE "Toolbox/System.s"
+  INCLUDE "Toolbox/Video.s"
 
   END

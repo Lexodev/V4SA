@@ -34,6 +34,8 @@ SCREEN_WIDTH        = 640
 SCREEN_HEIGHT       = 480
 SCREEN_DEPTH        = 16
 SCREEN_MODULO       = 0
+SCREEN_BPP          = SCREEN_DEPTH/8
+SCREEN_BPL          = SCREEN_BPP*SCREEN_WIDTH
 SCREEN_MODE         = VRES_640x480+PIXF_R5G6B5
 
 ;*******************************************************************************
